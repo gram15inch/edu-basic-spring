@@ -21,7 +21,6 @@ public class AccountDao {
         ps.setString(3, user.getPassword());
 
         ps.executeUpdate();
-
         ps.close();
         c.close();
     }
