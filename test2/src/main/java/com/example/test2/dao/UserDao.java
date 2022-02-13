@@ -20,6 +20,7 @@ public class UserDao {
     public UserDao(ConnectionMaker connectionMaker){
         this.connectionMaker  = connectionMaker;
     }
+
     public void add(User user) throws ClassNotFoundException, SQLException {
         Connection c = connectionMaker.makeConnection();
         PreparedStatement ps = c.prepareStatement(
@@ -74,3 +75,21 @@ class DConnectionMaker implements  ConnectionMaker{
     }
 }
 
+class CountingConnectionMaker implements ConnectionMaker{
+    int counter = 0;
+    private  ConnectionMaker realConnectionMaker;
+
+    public CountingConnectionMaker(ConnectionMaker connectionMaker) {
+        this.realConnectionMaker = connectionMaker;
+    }
+
+    @Override
+    public Connection makeConnection() throws ClassNotFoundException, SQLException {
+        this.counter++;
+        return realConnectionMaker.makeConnection();
+    }
+
+    public int getCounter(){
+        return this.counter;
+    }
+}

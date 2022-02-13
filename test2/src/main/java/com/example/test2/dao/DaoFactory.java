@@ -22,5 +22,4 @@ public class DaoFactory {
     public ConnectionMaker connectionMaker(){
         return new DConnectionMaker();
     }
-
 }
