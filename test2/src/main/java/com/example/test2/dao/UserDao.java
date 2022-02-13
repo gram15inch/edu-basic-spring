@@ -58,38 +58,4 @@ public class UserDao {
 
 }
 
-interface ConnectionMaker{
-    public Connection makeConnection() throws ClassNotFoundException, SQLException;
-}
 
-
-class DConnectionMaker implements  ConnectionMaker{
-    public Connection makeConnection() throws ClassNotFoundException, SQLException{
-
-        Connection c = DriverManager.getConnection(
-                DBinfo.URL,
-                DBinfo.USERNAME,
-                DBinfo.PASSWORD);
-
-        return c;
-    }
-}
-
-class CountingConnectionMaker implements ConnectionMaker{
-    int counter = 0;
-    private  ConnectionMaker realConnectionMaker;
-
-    public CountingConnectionMaker(ConnectionMaker connectionMaker) {
-        this.realConnectionMaker = connectionMaker;
-    }
-
-    @Override
-    public Connection makeConnection() throws ClassNotFoundException, SQLException {
-        this.counter++;
-        return realConnectionMaker.makeConnection();
-    }
-
-    public int getCounter(){
-        return this.counter;
-    }
-}
