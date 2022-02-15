@@ -34,3 +34,4 @@ build/
 
 #db
 test2/src/main/java/com/example/test2/DBinfo.java
+test2/src/main/resources/application.properties
