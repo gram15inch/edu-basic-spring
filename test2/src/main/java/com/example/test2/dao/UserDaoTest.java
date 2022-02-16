@@ -3,31 +3,54 @@ package com.example.test2.dao;
 
 import com.example.test2.domain.User;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.sql.SQLException;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations="/applicationContext.xml")
 public class UserDaoTest {
+    private User user1;
+    private User user2;
+    private User user3;
+
+    @Autowired
+    private UserDao dao;
+
+    @Autowired
+    private ApplicationContext context;
+
+    @Before
+    public void setUp(){
+        //ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
+        //this.dao = context.getBean("userDao",UserDao.class);
+        this.user1 = new User("워익워익","김띠용","tytywiwi1");
+        this.user2 = new User("워익워","띠용","tytywiwi2");
+        this.user3 = new User("워익","용","tytywiwi3");
+    }
+
     @Test
     public void addAndGet() throws SQLException{
         //ApplicationContext context = new AnnotationConfigApplicationContext(DaoFactory.class);
-        ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
         //ApplicationContext context = new ClassPathXmlApplicationContext("daoContext.xml",UserDao.class);
         //ApplicationContext context = new ClassPathXmlApplicationContext();
-        UserDao dao = context.getBean("userDao",UserDao.class);
 
-        // user 생성
-        User user1 = new User("워익워익","김띠용","tytywiwi1");
-        User user2 = new User("워익워","띠용","tytywiwi2");
-        
+
+
         // db 초기화
         dao.deleteAll();
         assertThat(dao.getCount(),is(0));
@@ -47,16 +70,10 @@ public class UserDaoTest {
         assertThat(userget2.getPassword(),is(user2.getPassword()));
 
     }
+
     @Test
     public void count()throws  SQLException{
 
-        ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
-        UserDao dao = context.getBean("userDao",UserDao.class);
-
-        // user 생성
-        User user1 = new User("워익워익","김띠용","tytywiwi1");
-        User user2 = new User("워익워","띠용","tytywiwi2");
-        User user3 = new User("워익","용","tytywiwi3");
 
         // db 초기화
         dao.deleteAll();
@@ -75,4 +92,14 @@ public class UserDaoTest {
        
 
     }
+
+    @Test(expected = EmptyResultDataAccessException.class)
+    public void getUserFailure() throws SQLException{
+
+        dao.deleteAll();
+        assertThat(dao.getCount(),is(0));
+
+        dao.get("unknown_id");
+    }
+
 }
