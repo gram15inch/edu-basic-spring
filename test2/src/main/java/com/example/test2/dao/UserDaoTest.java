@@ -25,24 +25,54 @@ public class UserDaoTest {
         UserDao dao = context.getBean("userDao",UserDao.class);
 
         // user 생성
-        User user = new User();
-        user.setId("워익워익");
-        user.setName("김띠용");
-        user.setPassword("tytywiwi");
+        User user1 = new User("워익워익","김띠용","tytywiwi1");
+        User user2 = new User("워익워","띠용","tytywiwi2");
+        
+        // db 초기화
+        dao.deleteAll();
+        assertThat(dao.getCount(),is(0));
 
         // user 추가
-        //dao.add(user);
+        dao.add(user1);
+        dao.add(user2);
+        assertThat(dao.getCount(),is(2));
+        
+        // get test
+        User userget1 = dao.get(user1.getId());
+        assertThat(userget1.getName(),is(user1.getName()));
+        assertThat(userget1.getPassword(),is(user1.getPassword()));
+        
+        User userget2 = dao.get(user2.getId());
+        assertThat(userget2.getName(),is(user2.getName()));
+        assertThat(userget2.getPassword(),is(user2.getPassword()));
 
-        // dao 실행
-        //User user2 = dao.get(user.getId());
-        User user2 = new User();
-        user2.setId("워익워익");
-        user2.setName("김띠용");
-        user2.setPassword("tytywiwi");
+    }
+    @Test
+    public void count()throws  SQLException{
 
-        // test
-        assertThat(user2.getName(),is(user.getName()));
-        assertThat(user2.getPassword(),is(user.getPassword()));
+        ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
+        UserDao dao = context.getBean("userDao",UserDao.class);
+
+        // user 생성
+        User user1 = new User("워익워익","김띠용","tytywiwi1");
+        User user2 = new User("워익워","띠용","tytywiwi2");
+        User user3 = new User("워익","용","tytywiwi3");
+
+        // db 초기화
+        dao.deleteAll();
+        assertThat(dao.getCount(),is(0));
+
+        // user 추가후 갯수 비교
+        dao.add(user1);
+        assertThat(dao.getCount(),is(1));
+
+        dao.add(user2);
+        assertThat(dao.getCount(),is(2));
+
+        dao.add(user3);
+        assertThat(dao.getCount(),is(3));
+
+       
 
     }
 }
