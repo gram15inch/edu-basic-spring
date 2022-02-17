@@ -13,9 +13,12 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.datasource.SingleConnectionDataSource;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.sql.DataSource;
 import java.sql.SQLException;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -23,6 +26,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations="/applicationContext.xml")
+@DirtiesContext
 public class UserDaoTest {
     private User user1;
     private User user2;
@@ -38,6 +42,9 @@ public class UserDaoTest {
     public void setUp(){
         //ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
         //this.dao = context.getBean("userDao",UserDao.class);
+        DataSource dataSource = new SingleConnectionDataSource(
+                "jdbc:mysql://localhost","spring","book",true);
+        dao.setDataSource(dataSource);
         this.user1 = new User("워익워익","김띠용","tytywiwi1");
         this.user2 = new User("워익워","띠용","tytywiwi2");
         this.user3 = new User("워익","용","tytywiwi3");
