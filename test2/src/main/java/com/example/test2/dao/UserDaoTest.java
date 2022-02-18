@@ -1,6 +1,7 @@
 package com.example.test2.dao;
 
 
+import com.example.test2.DBinfo;
 import com.example.test2.domain.User;
 
 import org.junit.Before;
@@ -25,8 +26,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations="/applicationContext.xml")
-@DirtiesContext
+@ContextConfiguration(locations="/test-applicationContext.xml")
 public class UserDaoTest {
     private User user1;
     private User user2;
@@ -42,12 +42,13 @@ public class UserDaoTest {
     public void setUp(){
         //ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
         //this.dao = context.getBean("userDao",UserDao.class);
-        DataSource dataSource = new SingleConnectionDataSource(
-                "jdbc:mysql://localhost","spring","book",true);
-        dao.setDataSource(dataSource);
+        //DataSource dataSource = new SingleConnectionDataSource(
+        //       "jdbc:mysql://localhost/testspring", DBinfo.USERNAME,DBinfo.PASSWORD,true);
+        //dao.setDataSource(dataSource);
         this.user1 = new User("워익워익","김띠용","tytywiwi1");
         this.user2 = new User("워익워","띠용","tytywiwi2");
         this.user3 = new User("워익","용","tytywiwi3");
+
     }
 
     @Test
