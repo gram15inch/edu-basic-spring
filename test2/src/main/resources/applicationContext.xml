@@ -11,7 +11,6 @@
 
         <bean id="userDao" class="com.example.test2.dao.UserDao">
                 <property name="dataSource" ref="dataSource"/>
-                <property name="jdbcContext" ref="jdbcContext"/>
         </bean>
 
         <bean id="jdbcContext" class="com.example.test2.dao.JdbcContext">
