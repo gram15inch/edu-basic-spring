@@ -45,7 +45,7 @@ public class UserDao {
     }
 
 
-    public void add(final User user) throws DuplicateKeyException, SQLException {
+    public void add(final User user){
             jdbcTemplate.update("insert into users(id, name, password) values(?,?,?)"
                     , user.getId()
                     , user.getName()
