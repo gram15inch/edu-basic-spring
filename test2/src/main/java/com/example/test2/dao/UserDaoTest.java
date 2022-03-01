@@ -2,6 +2,7 @@ package com.example.test2.dao;
 
 
 import com.example.test2.DBinfo;
+import com.example.test2.domain.Level;
 import com.example.test2.domain.User;
 
 import org.junit.Before;
@@ -53,9 +54,9 @@ public class UserDaoTest {
         //DataSource dataSource = new SingleConnectionDataSource(
         //       "jdbc:mysql://localhost/testspring", DBinfo.USERNAME,DBinfo.PASSWORD,true);
         //dao.setDataSource(dataSource);
-        this.user1 = new User("gyumee","김띠용","tytywiwi1");
-        this.user2 = new User("leegw700","띠용","tytywiwi2");
-        this.user3 = new User("bumjin","용","tytywiwi3");
+        this.user1 = new User("gyumee","박성철","tytywiwi1", Level.BASIC,1,0);
+        this.user2 = new User("leegw700","이길원","tytywiwi2", Level.SILVER,55,10);
+        this.user3 = new User("bumjin","박범진","tytywiwi3", Level.GOLD,100,40);
 
     }
 
@@ -78,12 +79,10 @@ public class UserDaoTest {
         
         // get test
         User userget1 = dao.get(user1.getId());
-        assertThat(userget1.getName(),is(user1.getName()));
-        assertThat(userget1.getPassword(),is(user1.getPassword()));
+        checkSameUsers(userget1,user1);
         
         User userget2 = dao.get(user2.getId());
-        assertThat(userget2.getName(),is(user2.getName()));
-        assertThat(userget2.getPassword(),is(user2.getPassword()));
+        checkSameUsers(userget2,user2);
 
     }
 
@@ -127,27 +126,30 @@ public class UserDaoTest {
         dao.add(user1);
         List<User> users1 = dao.getAll();
         assertThat(users1.size(),is(1));
-        CheckSameUsers(user1,users1.get(0));
+        checkSameUsers(user1,users1.get(0));
 
         dao.add(user2);
         List<User> users2 = dao.getAll();
         assertThat(users2.size(),is(2));
-        CheckSameUsers(user1,users2.get(0));
-        CheckSameUsers(user2,users2.get(1));
+        checkSameUsers(user1,users2.get(0));
+        checkSameUsers(user2,users2.get(1));
         
         dao.add(user3);
         List<User> users3 = dao.getAll();
         assertThat(users3.size(),is(3));
-        CheckSameUsers(user3,users3.get(0));
-        CheckSameUsers(user1,users3.get(1));
-        CheckSameUsers(user2,users3.get(2));
+        checkSameUsers(user3,users3.get(0));
+        checkSameUsers(user1,users3.get(1));
+        checkSameUsers(user2,users3.get(2));
 
 
     }
-    private void CheckSameUsers(User user1, User user2){
+    private void checkSameUsers(User user1, User user2){
         assertThat(user1.getId(), is(user2.getId()));
         assertThat(user1.getName(), is(user2.getName()));
         assertThat(user1.getPassword(), is(user2.getPassword()));
+        assertThat(user1.getLevel(), is(user2.getLevel()));
+        assertThat(user1.getLogin(), is(user2.getLogin()));
+        assertThat(user1.getRecommend(), is(user2.getRecommend()));
     }
 
     @Test(expected = DuplicateKeyException.class)
@@ -158,8 +160,8 @@ public class UserDaoTest {
         dao.add(user1);
     }
 
-    @Test
-    public void sqlExceptionTranslate(){
+    // @Test 중첩된 예외가 같이나옴
+    public void sqlExceptionTranslate2(){
         dao.deleteAll();
 
         try {
