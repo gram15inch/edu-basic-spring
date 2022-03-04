@@ -13,8 +13,9 @@
                 <property name="dataSource" ref="dataSource"/>
         </bean>
 
-        <bean id = "userService" class="com.example.test2.dao.UserService">
+        <bean id = "userService" class="com.example.test2.service.UserService">
                 <property name="userDao" ref="userDao"/>
+                <property name="userLevelUpgradePolicy" ref="userLevelUpgradePolicy"/>
         </bean>
 
 
@@ -26,5 +27,8 @@
                 <property name="password" value="${DBinfo.password}"/>
         </bean>
 
-
+        <bean id ="userLevelUpgradePolicy"
+             class="com.example.test2.service.UserLevelUpgradePolicyDefault">
+                <property name="userDao" ref="userDao"/>
+        </bean>
 </beans>

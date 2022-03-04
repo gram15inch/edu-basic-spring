@@ -1,5 +1,6 @@
-package com.example.test2.dao;
+package com.example.test2.service;
 
+import com.example.test2.dao.UserDao;
 import com.example.test2.domain.Level;
 import com.example.test2.domain.User;
 import org.junit.Before;
@@ -7,13 +8,18 @@ import org.junit.Before;
 import java.util.Arrays;
 import java.util.List;
 
+
 public class UserService {
     UserDao userDao;
+    UserLevelUpgradePolicy userLevelUpgradePolicy;
+
     public void setUserDao(UserDao userDao){
         this.userDao = userDao;
     }
 
-
+    public void setUserLevelUpgradePolicy(UserLevelUpgradePolicy userLevelUpgradePolicy) {
+        this.userLevelUpgradePolicy = userLevelUpgradePolicy;
+    }
 
     public void upgradeLevels(){
         List<User> users = userDao.getAll();
@@ -24,18 +30,11 @@ public class UserService {
     }
 
     private void upgradeLevel(User user) {
-        user.upgradeLevel();
-        userDao.update(user);
+        this.userLevelUpgradePolicy.upgradeLevel(user);
     }
 
     private boolean canUpgradeLevel(User user) {
-        Level currentLevel = user.getLevel();
-        switch(currentLevel){
-            case BASIC: return (user.getLogin() >= 50);
-            case SILVER: return (user.getRecommend() >= 30);
-            case GOLD: return (false);
-            default: throw new IllegalArgumentException("Unknown Level : "+ currentLevel);
-        }
+       return this.userLevelUpgradePolicy.canUpgradeLevel(user);
     }
 
 
