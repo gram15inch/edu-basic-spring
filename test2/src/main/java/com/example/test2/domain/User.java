@@ -1,5 +1,7 @@
 package com.example.test2.domain;
 
+import java.util.Date;
+
 public class User {
 
     Level level;
@@ -9,6 +11,8 @@ public class User {
     String id;
     String name;
     String password;
+
+    Date lastUpgraded;
 
     public User(String id, String name, String password, Level level, int login, int recommend) {
         this.id = id;
@@ -68,4 +72,15 @@ public class User {
      public void setPassword(String password){
          this.password = password;
      }
+
+    public void upgradeLevel(){
+        Level nextLevel = this.level.nextLevel();
+        if(nextLevel == null)
+            throw new IllegalStateException(this.level + "은 업그레이드가 불가능 합니다.");
+        else{
+            this.level = nextLevel;
+            this.lastUpgraded = new Date();
+        }
+    }
 }
+
