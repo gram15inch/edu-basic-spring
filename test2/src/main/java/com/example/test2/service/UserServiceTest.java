@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.sql.DataSource;
 import java.util.Arrays;
 import java.util.List;
 import static com.example.test2.service.UserLevelUpgradePolicyDefault.MIN_LOGCOUNT_FOR_SILVER;
@@ -26,6 +27,9 @@ import static org.junit.Assert.fail;
 public class UserServiceTest {
     @Autowired
     UserService userService;
+    @Autowired
+    DataSource dataSource;
+
     UserDao userDao;
     List<User> users;
     @Before
@@ -41,7 +45,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void upgradeLevels(){
+    public void upgradeLevels() throws Exception{ // 임시수정 365p
         userDao.deleteAll();
         for(User user : users) userDao.add(user);
 
@@ -93,12 +97,13 @@ public class UserServiceTest {
     static class TestUserServiceException extends RuntimeException{}
 
     @Test
-    public void upgradeAllOrNothing(){
+    public void upgradeAllOrNothing() throws Exception{
         UserService testUserService = new TestUserService(users.get(3).getId());
         testUserService.setUserDao(this.userDao);
         UserLevelUpgradePolicyDefault p = new UserLevelUpgradePolicyDefault();
         p.setUserDao(this.userDao);
         testUserService.setUserLevelUpgradePolicy(p);
+        testUserService.setDataSource(this.dataSource);
 
         userDao.deleteAll();
         for(User user : users) userDao.add(user);
@@ -109,6 +114,7 @@ public class UserServiceTest {
         }catch (TestUserServiceException e){}
 
         checkLevelUpgraded(users.get(1),false);
+
 
     }
 }
