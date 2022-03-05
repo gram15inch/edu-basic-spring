@@ -3,9 +3,7 @@ package com.example.test2.service;
 import com.example.test2.dao.UserDao;
 import com.example.test2.domain.Level;
 import com.example.test2.domain.User;
-import org.junit.Before;
 
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -16,7 +14,6 @@ public class UserService {
     public void setUserDao(UserDao userDao){
         this.userDao = userDao;
     }
-
     public void setUserLevelUpgradePolicy(UserLevelUpgradePolicy userLevelUpgradePolicy) {
         this.userLevelUpgradePolicy = userLevelUpgradePolicy;
     }
@@ -26,10 +23,9 @@ public class UserService {
         for(User user : users)
             if(canUpgradeLevel(user))
                 upgradeLevel(user);
-
     }
 
-    private void upgradeLevel(User user) {
+    protected void upgradeLevel(User user) {
         this.userLevelUpgradePolicy.upgradeLevel(user);
     }
 

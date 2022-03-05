@@ -19,6 +19,7 @@ import static com.example.test2.service.UserLevelUpgradePolicyDefault.MIN_RECCOM
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.fail;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "/test-applicationContext.xml")
@@ -46,14 +47,14 @@ public class UserServiceTest {
 
         userService.upgradeLevels();
 
-        checkLevel(users.get(0), false);
-        checkLevel(users.get(1), true);
-        checkLevel(users.get(2), false);
-        checkLevel(users.get(3), true);
-        checkLevel(users.get(4), false);
+        checkLevelUpgraded(users.get(0), false);
+        checkLevelUpgraded(users.get(1), true);
+        checkLevelUpgraded(users.get(2), false);
+        checkLevelUpgraded(users.get(3), true);
+        checkLevelUpgraded(users.get(4), false);
     }
 
-    private void checkLevel(User user, boolean upgraded) {
+    private void checkLevelUpgraded(User user, boolean upgraded) {
         User userUpdate = userDao.get(user.getId());
         if(upgraded){
             assertThat(userUpdate.getLevel(), is(user.getLevel().nextLevel()));
@@ -78,4 +79,37 @@ public class UserServiceTest {
         assertThat(userDao.get(userWtihtoutLevel.getId()).getLevel(),is(Level.BASIC));
 
     }
+
+    static class TestUserService extends UserService{
+        private String id;
+        private TestUserService(String id){ this.id = id;}
+
+        @Override
+        protected void upgradeLevel(User user) {
+            if(user.getId().equals(this.id)) throw new TestUserServiceException();
+            super.upgradeLevel(user);
+        }
+    }
+    static class TestUserServiceException extends RuntimeException{}
+
+    @Test
+    public void upgradeAllOrNothing(){
+        UserService testUserService = new TestUserService(users.get(3).getId());
+        testUserService.setUserDao(this.userDao);
+        UserLevelUpgradePolicyDefault p = new UserLevelUpgradePolicyDefault();
+        p.setUserDao(this.userDao);
+        testUserService.setUserLevelUpgradePolicy(p);
+
+        userDao.deleteAll();
+        for(User user : users) userDao.add(user);
+
+        try{
+            testUserService.upgradeLevels();
+            fail("TestUserServiceException expected");
+        }catch (TestUserServiceException e){}
+
+        checkLevelUpgraded(users.get(1),false);
+
+    }
 }
+
