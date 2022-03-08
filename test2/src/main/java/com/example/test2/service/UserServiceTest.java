@@ -9,6 +9,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 import java.util.Arrays;
@@ -29,6 +30,8 @@ public class UserServiceTest {
     UserService userService;
     @Autowired
     DataSource dataSource;
+    @Autowired
+    PlatformTransactionManager transactionManager;
 
     UserDao userDao;
     List<User> users;
@@ -97,17 +100,18 @@ public class UserServiceTest {
     static class TestUserServiceException extends RuntimeException{}
 
     @Test
-    public void upgradeAllOrNothing() throws Exception{
+    public void upgradeAllOrNothing(){
         UserLevelUpgradePolicyDefault p = new UserLevelUpgradePolicyDefault();
         p.setUserDao(this.userDao);
 
         UserService testUserService = new TestUserService(users.get(3).getId());
         testUserService.setUserLevelUpgradePolicy(p);
         testUserService.setUserDao(this.userDao);
-        testUserService.setDataSource(this.dataSource);
+        testUserService.setTransactionManager(transactionManager);
 
 
-        userDao.deleteAll();       for(User user : users) userDao.add(user);
+        userDao.deleteAll();
+        for(User user : users) userDao.add(user);
 
         try{
             testUserService.upgradeLevels();
@@ -115,7 +119,6 @@ public class UserServiceTest {
         }catch (TestUserServiceException e){}
 
         checkLevelUpgraded(users.get(1),false);
-
 
     }
 }
