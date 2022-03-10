@@ -88,7 +88,7 @@ public class UserServiceTest {
 
     }
 
-    // 테스트 확장 클래스
+    // 테스트용 확장 클래스
     static class TestUserService extends UserServiceImpl {
         private String id;
         private TestUserService(String id){ this.id = id;}
@@ -99,7 +99,7 @@ public class UserServiceTest {
             super.upgradeLevel(user);
         }
     }
-    // 테스트 전용 예외
+    // 테스트용 예외
     static class TestUserServiceException extends RuntimeException{}
 
     @Test
@@ -109,7 +109,7 @@ public class UserServiceTest {
 
         UserServiceImpl testUserService = new TestUserService(users.get(3).getId());
         testUserService.setUserLevelUpgradePolicy(p);
-        testUserService.setUserDao(this.userDao);
+        testUserService.setUserDao(this.userDao); // add 메소드에서 필요
 
         UserServiceTx txUserService = new UserServiceTx();
         txUserService.setTransactionManager(transactionManager);
