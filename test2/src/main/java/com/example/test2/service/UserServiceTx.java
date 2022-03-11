@@ -1,6 +1,7 @@
 package com.example.test2.service;
 
 import com.example.test2.domain.User;
+import org.springframework.mail.MailSender;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
@@ -10,6 +11,7 @@ import java.util.List;
 public class UserServiceTx implements UserService{
     UserService userService;
     PlatformTransactionManager transactionManager;
+
 
     public void setTransactionManager(PlatformTransactionManager transactionManager){
         this.transactionManager = transactionManager;

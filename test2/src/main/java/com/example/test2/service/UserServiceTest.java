@@ -7,6 +7,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.MailSender;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -34,6 +36,10 @@ public class UserServiceTest {
     PlatformTransactionManager transactionManager;
     @Autowired
     UserDao userDao;
+    @Autowired
+    MailSender mailSender;
+    @Autowired
+    UserServiceImpl userServiceImpl;
 
     List<User> users;
     @Before
@@ -49,17 +55,26 @@ public class UserServiceTest {
     }
 
     @Test
+    @DirtiesContext
     public void upgradeLevels() throws Exception{
         userDao.deleteAll();
         for(User user : users) userDao.add(user);
 
-        userService.upgradeLevels();
+        MockMailSender mockMailSender = new MockMailSender();
+        userServiceImpl.setMailSender(mockMailSender);
+
+        userServiceImpl.upgradeLevels();
 
         checkLevelUpgraded(users.get(0), false);
         checkLevelUpgraded(users.get(1), true);
         checkLevelUpgraded(users.get(2), false);
         checkLevelUpgraded(users.get(3), true);
         checkLevelUpgraded(users.get(4), false);
+
+        List<String> request = mockMailSender.getRequests();
+        assertThat(request.size(), is(2));
+        assertThat(request.get(0), is(users.get(1).getEmail()));
+        assertThat(request.get(1), is(users.get(3).getEmail()));
     }
 
     private void checkLevelUpgraded(User user, boolean upgraded) {
@@ -109,7 +124,8 @@ public class UserServiceTest {
 
         UserServiceImpl testUserService = new TestUserService(users.get(3).getId());
         testUserService.setUserLevelUpgradePolicy(p);
-        testUserService.setUserDao(this.userDao); // add 메소드에서 필요
+        testUserService.setUserDao(this.userDao); // policy 밖 add 메소드에서 필요
+        testUserService.setMailSender(mailSender);
 
         UserServiceTx txUserService = new UserServiceTx();
         txUserService.setTransactionManager(transactionManager);

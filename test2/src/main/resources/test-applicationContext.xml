@@ -22,6 +22,7 @@
         <bean id = "userServiceImpl" class="com.example.test2.service.UserServiceImpl">
                 <property name="userDao" ref="userDao"/>
                 <property name="userLevelUpgradePolicy" ref="userLevelUpgradePolicy"/>
+                <property name="mailSender" ref="mailSender"/>
         </bean>
 
         <bean id ="userLevelUpgradePolicy"
@@ -40,4 +41,7 @@
               class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
                 <property name="dataSource" ref="dataSource"/>
         </bean>
+
+        <bean id ="mailSender" class="com.example.test2.service.DummyMailSender"/>
+
 </beans>

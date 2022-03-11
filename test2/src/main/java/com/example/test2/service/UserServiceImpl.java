@@ -3,6 +3,7 @@ package com.example.test2.service;
 import com.example.test2.dao.UserDao;
 import com.example.test2.domain.Level;
 import com.example.test2.domain.User;
+import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -24,13 +25,13 @@ import java.util.Properties;
 public class UserServiceImpl implements UserService {
     UserDao userDao;
     UserLevelUpgradePolicy userLevelUpgradePolicy;
+    private MailSender mailSender;
 
-    public void setUserDao(UserDao userDao){
-        this.userDao = userDao;
-    }
+    public void setUserDao(UserDao userDao){ this.userDao = userDao; }
     public void setUserLevelUpgradePolicy(UserLevelUpgradePolicy userLevelUpgradePolicy) {
         this.userLevelUpgradePolicy = userLevelUpgradePolicy;
     }
+    public void setMailSender(MailSender mailSender) { this.mailSender = mailSender; }
 
     public void upgradeLevels() {
             List<User> users = userDao.getAll();
@@ -41,6 +42,7 @@ public class UserServiceImpl implements UserService {
 
     protected void upgradeLevel(User user) {
         this.userLevelUpgradePolicy.upgradeLevel(user);
+        this.sendUpgradeEMail(user);
     }
 
     private boolean canUpgradeLevel(User user) {
@@ -54,18 +56,14 @@ public class UserServiceImpl implements UserService {
 
     // javaMail 다시 시작
     private void sendUpgradeEMail(User user){
-        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-        mailSender.setHost("mail.server.com");
-
         SimpleMailMessage mailMessage = new SimpleMailMessage();
-    
+
         mailMessage.setTo(user.getEmail());
         mailMessage.setFrom("useradmin@ksug.org");
         mailMessage.setSubject("Upgrade 안내");
         mailMessage.setText("사용자님의 등급이 " + user.getLevel().name());
 
         mailSender.send(mailMessage);
-
     }
 
     private void BeforeSendUpgradeEMail(User user){
