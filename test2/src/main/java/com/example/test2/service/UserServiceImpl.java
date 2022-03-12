@@ -41,7 +41,8 @@ public class UserServiceImpl implements UserService {
     }
 
     protected void upgradeLevel(User user) {
-        this.userLevelUpgradePolicy.upgradeLevel(user);
+        user.upgradeLevel();
+        userDao.update(user);
         this.sendUpgradeEMail(user);
     }
 

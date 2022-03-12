@@ -7,13 +7,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import static com.example.test2.service.UserLevelUpgradePolicyDefault.MIN_LOGCOUNT_FOR_SILVER;
@@ -55,21 +58,27 @@ public class UserServiceTest {
     }
 
     @Test
-    @DirtiesContext
     public void upgradeLevels() throws Exception{
-        userDao.deleteAll();
-        for(User user : users) userDao.add(user);
+        UserServiceImpl userServiceImpl = new UserServiceImpl();
+
+        UserLevelUpgradePolicy policy = new UserLevelUpgradePolicyDefault();
+        userServiceImpl.setUserLevelUpgradePolicy(policy);
+
+        MockUserDao mockUserDao = new MockUserDao((this.users));
+        userServiceImpl.setUserDao(mockUserDao);
 
         MockMailSender mockMailSender = new MockMailSender();
         userServiceImpl.setMailSender(mockMailSender);
 
+
         userServiceImpl.upgradeLevels();
 
-        checkLevelUpgraded(users.get(0), false);
-        checkLevelUpgraded(users.get(1), true);
-        checkLevelUpgraded(users.get(2), false);
-        checkLevelUpgraded(users.get(3), true);
-        checkLevelUpgraded(users.get(4), false);
+
+       List<User> updated = mockUserDao.getUpdated();
+       assertThat(updated.size(), is(2));
+        checkUserAndLevel(updated.get(0),"joytouch",Level.SILVER);
+        checkUserAndLevel(updated.get(1),"madnite1",Level.GOLD);
+
 
         List<String> request = mockMailSender.getRequests();
         assertThat(request.size(), is(2));
@@ -77,6 +86,7 @@ public class UserServiceTest {
         assertThat(request.get(1), is(users.get(3).getEmail()));
     }
 
+    // 헬퍼 메소드
     private void checkLevelUpgraded(User user, boolean upgraded) {
         User userUpdate = userDao.get(user.getId());
         if(upgraded){
@@ -85,6 +95,10 @@ public class UserServiceTest {
             assertThat(userUpdate.getLevel(),is(user.getLevel()));
         }
 
+    }
+    private void checkUserAndLevel(User updated, String expectedId, Level expectedLevel){
+        assertThat(updated.getId(),is(expectedId));
+        assertThat(updated.getLevel(),is(expectedLevel));
     }
 
     @Test
@@ -103,7 +117,7 @@ public class UserServiceTest {
 
     }
 
-    // 테스트용 확장 클래스
+    // 테스트용 클래스
     static class TestUserService extends UserServiceImpl {
         private String id;
         private TestUserService(String id){ this.id = id;}
@@ -114,13 +128,62 @@ public class UserServiceTest {
             super.upgradeLevel(user);
         }
     }
+    static class MockMailSender implements MailSender {
+        private List<String> requests = new ArrayList<String>();
+
+        public List<String> getRequests() { return requests; }
+
+        @Override
+        public void send(SimpleMailMessage mailMessage) throws MailException {
+            requests.add(mailMessage.getTo()[0]);
+        }
+
+        @Override
+        public void send(SimpleMailMessage[] mailMessage) throws MailException { }
+    }
+    static class MockUserDao implements UserDao{
+        private List<User> users;
+        private List<User> updated = new ArrayList<>();
+        private MockUserDao(List<User> users){
+            this.users = users;
+        }
+
+        public List<User> getUpdated(){
+            return this.updated;
+        }
+
+        @Override
+        public List<User> getAll() {
+            return this.users;
+        }
+
+        @Override
+        public void update(User user) {
+            updated.add(user);
+        }
+
+
+        // 사용되지 않는 메서드
+        public void add(User user) {
+            throw new UnsupportedOperationException();
+        }
+        public User get(String id) {
+            throw new UnsupportedOperationException();
+        }
+        public void deleteAll() {
+            throw new UnsupportedOperationException();
+        }
+        public int getCount() {
+            throw new UnsupportedOperationException();
+        }
+    }
     // 테스트용 예외
     static class TestUserServiceException extends RuntimeException{}
 
+    // 학습 테스트
     @Test
     public void upgradeAllOrNothing(){
         UserLevelUpgradePolicyDefault p = new UserLevelUpgradePolicyDefault();
-        p.setUserDao(this.userDao);
 
         UserServiceImpl testUserService = new TestUserService(users.get(3).getId());
         testUserService.setUserLevelUpgradePolicy(p);
@@ -142,5 +205,7 @@ public class UserServiceTest {
         checkLevelUpgraded(users.get(1),false);
 
     }
+
+
 }
 

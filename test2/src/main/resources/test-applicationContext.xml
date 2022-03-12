@@ -26,9 +26,8 @@
         </bean>
 
         <bean id ="userLevelUpgradePolicy"
-             class="com.example.test2.service.UserLevelUpgradePolicyDefault">
-                <property name="userDao" ref="userDao"/>
-        </bean>
+             class="com.example.test2.service.UserLevelUpgradePolicyDefault"/>
+
 
         <bean id="dataSource"
               class="org.springframework.jdbc.datasource.SimpleDriverDataSource">

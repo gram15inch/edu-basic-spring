@@ -19,12 +19,6 @@ public class UserLevelUpgradePolicyDefault implements UserLevelUpgradePolicy{
     public static final int MIN_LOGCOUNT_FOR_SILVER = 50;
     public static final int MIN_RECCOMEND_FOR_GOLD = 30;
 
-    UserDao userDao;
-
-    public void setUserDao(UserDao userDao) {
-        this.userDao = userDao;
-    }
-
     @Override
     public boolean canUpgradeLevel(User user) {
         Level currentLevel = user.getLevel();
@@ -36,11 +30,6 @@ public class UserLevelUpgradePolicyDefault implements UserLevelUpgradePolicy{
         }
     }
 
-    @Override
-    public void upgradeLevel(User user) {
-        user.upgradeLevel();
-        userDao.update(user);
-    }
 
 
 }
