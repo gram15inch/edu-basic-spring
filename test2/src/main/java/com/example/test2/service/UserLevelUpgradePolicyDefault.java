@@ -14,7 +14,7 @@ import javax.mail.internet.MimeMessage;
 import java.io.UnsupportedEncodingException;
 import java.util.Properties;
 
-public class UserLevelUpgradePolicyDefault implements UserLevelUpgradePolicy{
+final public class UserLevelUpgradePolicyDefault implements UserLevelUpgradePolicy{
 
     public static final int MIN_LOGCOUNT_FOR_SILVER = 50;
     public static final int MIN_RECCOMEND_FOR_GOLD = 30;
