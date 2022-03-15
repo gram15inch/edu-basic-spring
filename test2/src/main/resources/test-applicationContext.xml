@@ -43,4 +43,5 @@
 
         <bean id ="mailSender" class="com.example.test2.service.DummyMailSender"/>
 
+
 </beans>

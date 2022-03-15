@@ -3,11 +3,36 @@ package com.example.test2.learningtest.jdk;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ReflectionTest {
+
+    @Test
+    public void dynamicProxy() throws Exception {
+        String name = "Spring";
+
+        Hello proxiedHello = (Hello) Proxy.newProxyInstance(
+                getClass().getClassLoader(),
+                new Class[]{Hello.class},
+                new UppercaseHandler(new HelloTarget())
+        ) ;
+
+        assertThat(proxiedHello.sayHello("Toby"),is("HELLO TOBY"));
+        assertThat(proxiedHello.sayHi("Toby"),is("HI TOBY"));
+        assertThat(proxiedHello.sayThankYou("Toby"),is("THANK YOU TOBY"));
+    }
+
+    @Test
+    public void proxy(){
+        Hello proxiedHello = new HelloUppercase(new HelloTarget());
+        assertThat(proxiedHello.sayHello("Toby"),is("HELLO TOBY"));
+        assertThat(proxiedHello.sayHi("Toby"),is("HI TOBY"));
+        assertThat(proxiedHello.sayThankYou("Toby"),is("THANK YOU TOBY"));
+    }
+
     @Test
     public void invokeMethod() throws Exception{
         String name = "Spring";
@@ -20,14 +45,9 @@ public class ReflectionTest {
 
         // charAt()
         assertThat(name.charAt(0), is('S'));
-        
+
         Method charAtMethod = String.class.getMethod("charAt", int.class);
          assertThat((Character)charAtMethod.invoke(name,0),is('S'));
-
-        Hello proxieHello = new HelloUppercase(new HelloTarget());
-        assertThat(proxieHello.sayHello("Toby"),is("HELLO TOBY"));
-        assertThat(proxieHello.sayHi("Toby"),is("HI TOBY"));
-        assertThat(proxieHello.sayThankYou("Toby"),is("THANK YOU TOBY"));
 
     }
 
