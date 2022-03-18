@@ -263,7 +263,7 @@ public class UserServiceTest {
         UserService txUserService = (UserService)Proxy.newProxyInstance(
                 getClass().getClassLoader(), new Class[]{UserService.class}, txHandler);
 
-
+// 여기부터 시작
         userDao.deleteAll();
         for(User user : users) userDao.add(user);
 
