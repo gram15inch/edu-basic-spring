@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
@@ -34,22 +35,17 @@ import static org.mockito.Mockito.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "/test-applicationContext.xml")
 public class UserServiceTest {
-    @Autowired
-    UserService userService;
-    @Autowired
-    DataSource dataSource;
-    @Autowired
-    PlatformTransactionManager transactionManager;
-    @Autowired
-    UserDao userDao;
-    @Autowired
-    MailSender mailSender;
-    @Autowired
-    UserServiceImpl userServiceImpl;
+    // @Autowired DataSource dataSource;
+    //@Autowired UserServiceImpl userServiceImpl;
+    @Autowired PlatformTransactionManager transactionManager;
+    @Autowired UserService userService;
+    @Autowired UserDao userDao;
+    @Autowired MailSender mailSender;
+    @Autowired ApplicationContext context;
+
 
     List<User> users;
-    @Before
-    public void setUp(){
+    @Before public void setUp(){
         //userDao = userService.userDao;
         users = Arrays.asList(
                 new User("bumjin", "박범진", "p1", Level.BASIC, MIN_LOGCOUNT_FOR_SILVER-1,0,"bumjin@email.com"),
@@ -60,8 +56,7 @@ public class UserServiceTest {
         );
     }
 
-    @Test
-    public void mockUpgradeLevels() throws Exception {
+    @Test public void mockUpgradeLevels() throws Exception {
 
         // mock 주입
         UserServiceImpl userServiceImpl = new UserServiceImpl();
@@ -97,8 +92,7 @@ public class UserServiceTest {
 
     }
 
-    @Test
-    public void upgradeLevels() throws Exception{
+    @Test public void upgradeLevels() throws Exception{
         UserServiceImpl userServiceImpl = new UserServiceImpl();
 
         UserLevelUpgradePolicy policy = new UserLevelUpgradePolicyDefault();
@@ -141,8 +135,7 @@ public class UserServiceTest {
         assertThat(updated.getLevel(),is(expectedLevel));
     }
 
-    @Test
-    public void add(){
+    @Test public void add(){
         userDao.deleteAll();
 
         User userWtihLevel = users.get(3);
@@ -222,7 +215,8 @@ public class UserServiceTest {
 
     // 학습 테스트
     @Test
-    public void upgradeAllOrNothing(){
+    @DirtiesContext
+    public void upgradeAllOrNothing() throws Exception{
         UserLevelUpgradePolicyDefault p = new UserLevelUpgradePolicyDefault();
 
         UserServiceImpl testUserService = new TestUserService(users.get(3).getId());
@@ -230,9 +224,11 @@ public class UserServiceTest {
         testUserService.setUserDao(this.userDao); // policy 밖 add 메소드에서 필요
         testUserService.setMailSender(mailSender);
 
-        UserServiceTx txUserService = new UserServiceTx();
-        txUserService.setTransactionManager(transactionManager);
-        txUserService.setUserService(testUserService);
+
+        TxProxyFactoryBean txProxyFactoryBean =
+                context.getBean("&userService",TxProxyFactoryBean.class);
+        txProxyFactoryBean.setTarget(testUserService);
+        UserService txUserService = (UserService) txProxyFactoryBean.getObject();
 
         userDao.deleteAll();
         for(User user : users) userDao.add(user);
@@ -245,8 +241,7 @@ public class UserServiceTest {
         checkLevelUpgraded(users.get(1),false);
 
     }
-    @Test
-    public void proxyUpgradeAllOrNothing(){
+    @Test public void proxyUpgradeAllOrNothing(){
         UserLevelUpgradePolicyDefault p = new UserLevelUpgradePolicyDefault();
 
         UserServiceImpl testUserService = new TestUserService(users.get(3).getId());
@@ -263,7 +258,8 @@ public class UserServiceTest {
         UserService txUserService = (UserService)Proxy.newProxyInstance(
                 getClass().getClassLoader(), new Class[]{UserService.class}, txHandler);
 
-// 여기부터 시작
+// 여기부터 시작.
+
         userDao.deleteAll();
         for(User user : users) userDao.add(user);
 
