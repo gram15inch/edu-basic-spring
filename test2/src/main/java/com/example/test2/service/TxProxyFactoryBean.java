@@ -40,7 +40,7 @@ public class TxProxyFactoryBean implements FactoryBean<Object> {
 
     @Override
     public Class<?> getObjectType() {
-        return serviceInterface;
+        return serviceInterface.getClass();
     }
 
     @Override

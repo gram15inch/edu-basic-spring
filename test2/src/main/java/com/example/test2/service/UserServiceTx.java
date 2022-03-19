@@ -37,6 +37,5 @@ public class UserServiceTx implements UserService{
             this.transactionManager.rollback(status);
             throw e;
         }
-
     }
 }

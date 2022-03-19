@@ -1,4 +1,4 @@
-package com.example.test2.learningtest.jdk;
+package com.example.test2.learningtest.jdk.proxy;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
