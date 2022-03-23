@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.mail.MailException;
@@ -225,8 +226,8 @@ public class UserServiceTest {
         testUserService.setMailSender(mailSender);
 
 
-        TxProxyFactoryBean txProxyFactoryBean =
-                context.getBean("&userService",TxProxyFactoryBean.class);
+        ProxyFactoryBean txProxyFactoryBean =
+                context.getBean("&userService",ProxyFactoryBean.class);
         txProxyFactoryBean.setTarget(testUserService);
         UserService txUserService = (UserService) txProxyFactoryBean.getObject();
 
@@ -241,35 +242,7 @@ public class UserServiceTest {
         checkLevelUpgraded(users.get(1),false);
 
     }
-    @Test public void proxyUpgradeAllOrNothing(){
-        UserLevelUpgradePolicyDefault p = new UserLevelUpgradePolicyDefault();
 
-        UserServiceImpl testUserService = new TestUserService(users.get(3).getId());
-        testUserService.setUserLevelUpgradePolicy(p);
-        testUserService.setUserDao(this.userDao); // policy 밖 add 메소드에서 필요
-        testUserService.setMailSender(mailSender);
-
-
-        TransactionHandler txHandler = new TransactionHandler();
-        txHandler.setTarget(testUserService);
-        txHandler.setTransactionManager(transactionManager);
-        txHandler.setPattern("upgradeLevels");
-
-        UserService txUserService = (UserService)Proxy.newProxyInstance(
-                getClass().getClassLoader(), new Class[]{UserService.class}, txHandler);
-
-// 여기부터 시작.
-
-        userDao.deleteAll();
-        for(User user : users) userDao.add(user);
-
-        try{
-            txUserService.upgradeLevels();
-            fail("TestUserServiceException expected");
-        }catch (TestUserServiceException e){}
-;
-        checkLevelUpgraded(users.get(1),false);
-    }
 
 }
 
