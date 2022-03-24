@@ -18,8 +18,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import javax.sql.DataSource;
-import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -40,6 +38,7 @@ public class UserServiceTest {
     //@Autowired UserServiceImpl userServiceImpl;
     @Autowired PlatformTransactionManager transactionManager;
     @Autowired UserService userService;
+    @Autowired UserService testUserService;
     @Autowired UserDao userDao;
     @Autowired MailSender mailSender;
     @Autowired ApplicationContext context;
@@ -152,9 +151,8 @@ public class UserServiceTest {
     }
 
     // 테스트용 클래스
-    static class TestUserService extends UserServiceImpl {
-        private String id;
-        private TestUserService(String id){ this.id = id;}
+    static class TestUserServiceImpl extends UserServiceImpl {
+        private String id ="madnite1";
 
         @Override
         protected void upgradeLevel(User user) {
@@ -216,33 +214,20 @@ public class UserServiceTest {
 
     // 학습 테스트
     @Test
-    @DirtiesContext
     public void upgradeAllOrNothing() throws Exception{
-        UserLevelUpgradePolicyDefault p = new UserLevelUpgradePolicyDefault();
-
-        UserServiceImpl testUserService = new TestUserService(users.get(3).getId());
-        testUserService.setUserLevelUpgradePolicy(p);
-        testUserService.setUserDao(this.userDao); // policy 밖 add 메소드에서 필요
-        testUserService.setMailSender(mailSender);
-
-
-        ProxyFactoryBean txProxyFactoryBean =
-                context.getBean("&userService",ProxyFactoryBean.class);
-        txProxyFactoryBean.setTarget(testUserService);
-        UserService txUserService = (UserService) txProxyFactoryBean.getObject();
 
         userDao.deleteAll();
         for(User user : users) userDao.add(user);
 
         try{
-            txUserService.upgradeLevels();
+            this.testUserService.upgradeLevels();
             fail("TestUserServiceException expected");
         }catch (TestUserServiceException e){}
 
         checkLevelUpgraded(users.get(1),false);
 
     }
-
+   
 
 }
 
