@@ -227,7 +227,8 @@ public class UserServiceTest {
         checkLevelUpgraded(users.get(1),false);
 
     }
-   
+
+
 
 }
 

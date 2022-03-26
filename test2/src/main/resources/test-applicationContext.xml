@@ -47,9 +47,8 @@
         </bean>
 
         <bean id="transactionPointcut"
-              class="com.example.test2.learningtest.jdk.proxy.NameMatchClassMethodPointcut">
-                <property name="mappedClassName" value="*ServiceImpl"/>
-                <property name="mappedName" value="upgrade*"/>
+              class="org.springframework.aop.aspectj.AspectJExpressionPointcut">
+                <property name="expression" value="execution(* *..*ServiceImpl.upgrade*(..))"/>
         </bean>
 
         <bean id="transactionAdvisor"
