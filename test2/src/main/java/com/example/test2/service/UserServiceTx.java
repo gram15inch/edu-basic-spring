@@ -38,4 +38,26 @@ public class UserServiceTx implements UserService{
             throw e;
         }
     }
+
+    // 임시
+
+    @Override
+    public User get(String id) {
+        return null;
+    }
+
+    @Override
+    public List<User> getAll() {
+        return null;
+    }
+
+    @Override
+    public void deleteAll() {
+
+    }
+
+    @Override
+    public void update(User user) {
+
+    }
 }

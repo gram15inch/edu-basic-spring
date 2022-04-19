@@ -10,6 +10,7 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.dao.TransientDataAccessResourceException;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
@@ -17,6 +18,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -120,6 +122,11 @@ public class UserServiceTest {
         assertThat(request.get(1), is(users.get(3).getEmail()));
     }
 
+    @Test(expected = TransientDataAccessResourceException.class)
+    public void readOnlyTransactionAttribute(){
+        testUserService.getAll();
+    }
+
     // 헬퍼 메소드
     private void checkLevelUpgraded(User user, boolean upgraded) {
         User userUpdate = userDao.get(user.getId());
@@ -150,7 +157,7 @@ public class UserServiceTest {
 
     }
 
-    // 테스트용 클래스
+    // ** 테스트용 클래스 **
     static class TestUserServiceImpl extends UserServiceImpl {
         private String id ="madnite1";
 
@@ -158,6 +165,15 @@ public class UserServiceTest {
         protected void upgradeLevel(User user) {
             if(user.getId().equals(this.id)) throw new TestUserServiceException();
             super.upgradeLevel(user);
+        }
+
+        @Override
+        public List<User> getAll() {
+            for (User user : super.getAll()){
+                super.update(user);
+            }
+
+            return null;
         }
     }
     static class MockMailSender implements MailSender {
