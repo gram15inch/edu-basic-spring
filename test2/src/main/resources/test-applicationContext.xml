@@ -70,8 +70,9 @@
 
 
         <aop:config>
-                <aop:pointcut id="transactionPointcut" expression="execution(* *..*ServiceImpl.upgrade*(..))"/>
-                <aop:advisor advice-ref="transactionAdvice" pointcut-ref="transactionPointcut"/>
+                <!--<aop:pointcut id="transactionPointcut" expression="execution(* *..*ServiceImpl.upgrade*(..))"/>
+                <aop:advisor advice-ref="transactionAdvice" pointcut-ref="transactionPointcut"/>-->
+                <aop:advisor advice-ref="transactionAdvice" pointcut="bean(*Service)"/>7
         </aop:config>
 
         <tx:advice id = "transactionAdvice" transaction-manager="transactionManager">

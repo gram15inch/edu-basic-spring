@@ -55,7 +55,6 @@ public class UserServiceImpl implements UserService {
         userDao.add(user);
     }
 
-    // javaMail 다시 시작
     private void sendUpgradeEMail(User user){
         SimpleMailMessage mailMessage = new SimpleMailMessage();
 
@@ -86,5 +85,26 @@ public class UserServiceImpl implements UserService {
         }catch (AddressException e){throw new RuntimeException(e);}
         catch (MessagingException e){throw new RuntimeException(e);}
         //catch (UnsupportedEncodingException e){throw new RuntimeException(e);} 오류
+    }
+
+
+    @Override
+    public User get(String id) {
+        return userDao.get(id);
+    }
+
+    @Override
+    public List<User> getAll() {
+        return userDao.getAll();
+    }
+
+    @Override
+    public void deleteAll() {
+        userDao.deleteAll();
+    }
+
+    @Override
+    public void update(User user) {
+        userDao.update(user);
     }
 }
