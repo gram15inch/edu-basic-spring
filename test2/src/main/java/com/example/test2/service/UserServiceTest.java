@@ -18,7 +18,9 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,7 +46,6 @@ public class UserServiceTest {
     @Autowired UserDao userDao;
     @Autowired MailSender mailSender;
     @Autowired ApplicationContext context;
-
 
     List<User> users;
     @Before public void setUp(){
@@ -157,6 +158,14 @@ public class UserServiceTest {
 
     }
 
+    //@Transactional()
+    @Test public void transactionSync(){
+
+        userDao.deleteAll();
+        /*userService.add(users.get(0));
+        userService.add(users.get(1));*/
+
+    }
     // ** 테스트용 클래스 **
     static class TestUserServiceImpl extends UserServiceImpl {
         private String id ="madnite1";
