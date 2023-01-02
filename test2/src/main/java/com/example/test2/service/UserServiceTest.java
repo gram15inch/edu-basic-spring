@@ -198,6 +198,7 @@ public class UserServiceTest {
         @Override
         public void send(SimpleMailMessage[] mailMessage) throws MailException { }
     }
+
     static class MockUserDao implements UserDao{
         private List<User> users;
         private List<User> updated = new ArrayList<>();
